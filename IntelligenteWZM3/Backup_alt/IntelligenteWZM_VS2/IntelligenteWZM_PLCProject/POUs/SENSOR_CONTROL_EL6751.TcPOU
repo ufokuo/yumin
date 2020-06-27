@@ -1,0 +1,162 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.16">
+  <POU Name="SENSOR_CONTROL_EL6751" Id="{50abfa36-9342-4e22-a6e1-5ebfc7cdc5b8}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM SENSOR_CONTROL_EL6751
+VAR
+	Samp: WORD:=0;	
+	FigArray: ARRAY [0..7] OF USINT :=[0, 0, 0, 0, 0, 0, 0, 0];
+	Previous: USINT:=16#0;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[HUB_STATE:=FALSE; 
+
+IF CAN_TRIGGER_STATE=1 AND M_PER_FRAME=1 THEN
+	CAN_CONTROL_FRAME:=FigArray;
+	IF samp>K_Trigger THEN			// Can occurs by changing M_PER_FRAME from 2,3 or 4 to 1 
+		samp:=0;
+	END_IF
+	Samp:=Samp+1;
+	IF Samp=K_Trigger THEN
+		CAN_CONTROL_FRAME[0]:=16#3;
+		CAN_CONTROL_FRAME[2]:=16#1;
+		CAN_CONTROL_FRAME[4]:=N_SAMPLES_PER_M;
+		CASE Previous OF
+			16#0: 	CAN_CONTROL_FRAME[3]:=16#0;
+					Previous:=16#1;
+			16#1: 	CAN_CONTROL_FRAME[3]:=16#1;
+					Previous:=16#0;
+		END_CASE
+		SIGNAL_SYNCH:=1;
+		Samp:=0;
+		CAN_HUB:=CAN_CONTROL_FRAME;	
+	END_IF	
+	HUB_STATE:=TRUE;
+END_IF
+
+
+
+IF CAN_TRIGGER_STATE=1 AND M_PER_FRAME=2 THEN
+	CAN_CONTROL_FRAME:=FigArray;
+	Samp:=Samp+1;
+	IF Samp=K_Trigger OR Samp=(2*K_Trigger) THEN
+		CAN_CONTROL_FRAME[0]:=16#3;
+		CAN_CONTROL_FRAME[2]:=16#2;
+		CAN_CONTROL_FRAME[4]:=N_SAMPLES_PER_M;
+		IF Samp=K_Trigger THEN
+			CAN_CONTROL_FRAME[3]:=16#1;
+			SIGNAL_SYNCH:=1;
+		END_IF
+		IF Samp=(2*K_Trigger) THEN
+			CAN_CONTROL_FRAME[3]:=16#2;
+			SIGNAL_SYNCH:=2;
+			Samp:=0;
+		END_IF
+		CAN_HUB:=CAN_CONTROL_FRAME;	
+	END_IF
+	HUB_STATE:=TRUE;
+END_IF
+
+
+
+IF CAN_TRIGGER_STATE=1 AND M_PER_FRAME=3 THEN
+	CAN_CONTROL_FRAME:=FigArray;
+	Samp:=Samp+1;
+	IF Samp=K_Trigger OR Samp=(2*K_Trigger) OR Samp=(3*K_Trigger) THEN
+		CAN_CONTROL_FRAME[0]:=16#3;
+		CAN_CONTROL_FRAME[2]:=16#3;
+		CAN_CONTROL_FRAME[4]:=N_SAMPLES_PER_M;
+		IF Samp=K_Trigger THEN
+			CAN_CONTROL_FRAME[3]:=16#1;
+			SIGNAL_SYNCH:=1;
+		END_IF
+		IF Samp=(2*K_Trigger) THEN
+			CAN_CONTROL_FRAME[3]:=16#2;
+			SIGNAL_SYNCH:=2;
+		END_IF
+		IF Samp=(3*K_Trigger) THEN
+			CAN_CONTROL_FRAME[3]:=16#3;
+			SIGNAL_SYNCH:=3;
+			Samp:=0;
+		END_IF
+		CAN_HUB:=CAN_CONTROL_FRAME;	
+	END_IF
+	HUB_STATE:=TRUE;
+END_IF
+
+
+IF CAN_TRIGGER_STATE=1 AND M_PER_FRAME=4 THEN
+	CAN_CONTROL_FRAME:=FigArray;
+	Samp:=Samp+1;
+	IF Samp=K_Trigger OR Samp=(2*K_Trigger) OR Samp=(3*K_Trigger) OR Samp=(4*K_Trigger)  THEN
+		CAN_CONTROL_FRAME[0]:=16#3;
+		CAN_CONTROL_FRAME[2]:=16#4;
+		CAN_CONTROL_FRAME[4]:=N_SAMPLES_PER_M;
+		IF Samp=K_Trigger THEN
+			CAN_CONTROL_FRAME[3]:=16#1;
+			SIGNAL_SYNCH:=1;
+		END_IF
+		IF Samp=(2*K_Trigger) THEN
+			CAN_CONTROL_FRAME[3]:=16#2;
+			SIGNAL_SYNCH:=2;
+		END_IF
+		IF Samp=(3*K_Trigger) THEN
+			CAN_CONTROL_FRAME[3]:=16#3;
+			SIGNAL_SYNCH:=3;
+		END_IF
+		IF Samp=(4*K_Trigger) THEN
+			CAN_CONTROL_FRAME[3]:=16#4;
+			SIGNAL_SYNCH:=4;
+			Samp:=0;
+		END_IF
+		CAN_HUB:=CAN_CONTROL_FRAME;		
+	END_IF
+	HUB_STATE:=TRUE;
+END_IF
+
+IF CAN_CONTROL_STATE=0 THEN
+	CAN_CONTROL_FRAME:=FigArray;
+	CAN_CONTROL_FRAME[0]:=16#0;
+	CAN_HUB:=CAN_CONTROL_FRAME;
+	CAN_CONTROL_STATE:=11;
+	HUB_STATE:=TRUE;
+END_IF
+
+IF CAN_CONTROL_STATE=1 THEN
+	CAN_CONTROL_FRAME:=FigArray;
+	CAN_CONTROL_FRAME[0]:=16#1;
+	CAN_HUB:=CAN_CONTROL_FRAME;
+	CAN_CONTROL_STATE:=11;
+	HUB_STATE:=TRUE;
+END_IF
+
+IF CAN_CONTROL_STATE=2 THEN
+	CAN_CONTROL_FRAME:=FigArray;
+	CAN_CONTROL_FRAME[0]:=16#2;
+	CAN_HUB:=CAN_CONTROL_FRAME;
+	CAN_CONTROL_STATE:=11;
+	HUB_STATE:=TRUE;
+END_IF
+
+IF CAN_CONTROL_STATE=3 THEN
+	CAN_CONTROL_FRAME:=CAN_PARAMETER_FRAME;
+	CAN_HUB:=CAN_CONTROL_FRAME;
+	CAN_CONTROL_STATE:=11;
+	CAN_PARAMETER_FRAME:=FigArray;
+	HUB_STATE:=TRUE;
+END_IF
+
+
+
+
+
+]]></ST>
+    </Implementation>
+    <LineIds Name="SENSOR_CONTROL_EL6751">
+      <LineId Id="154" Count="0" />
+      <LineId Id="300" Count="0" />
+      <LineId Id="155" Count="138" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

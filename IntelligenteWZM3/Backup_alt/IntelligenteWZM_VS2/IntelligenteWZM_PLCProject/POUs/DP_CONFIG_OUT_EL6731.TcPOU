@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.0.26">
+  <POU Name="DP_CONFIG_OUT_EL6731" Id="{f39ae699-8486-4bf9-afa7-fc8bcd4e59d7}">
+    <Declaration><![CDATA[PROGRAM DP_CONFIG_OUT_EL6731
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[DP_MISO_WORD_1:=SET_NC_PARAM_1;	
+DP_MISO_WORD_2:=SET_NC_PARAM_2;
+DP_MISO_WORD_3:=SET_NC_PARAM_3;													
+DP_MISO_WORD_4:=SET_NC_PARAM_4;									
+]]></ST>
+    </Implementation>
+    <ObjectProperties />
+  </POU>
+</TcPlcObject>

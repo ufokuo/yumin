@@ -1,0 +1,239 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.3">
+  <POU Name="MAGNITUDESPECTRUM" Id="{69af3e24-9f4a-4549-a15e-22c32d8c7cae}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAGNITUDESPECTRUM
+
+VAR CONSTANT	
+    cInitSource			: ST_MA_MultiArray_InitPars 
+							:= ( eTypeCode := eMA_TypeCode_LREAL, nDims := 1, aDimSizes := [cBufferLength]);	
+END_VAR
+
+VAR
+	nSample				: UDINT;
+	//nChnIndex			: UDINT;
+	//aEl3632 AT %I*		: ARRAY[1..cOversamples] OF INT;	// Input from hardware e.g. EL3632  A_OVERSAMPLING_INPUT_1
+	//A_OVERSAMPLING_INPUT_1 AT%I*: ARRAY[0..9] OF INT; // Sensor 1 X
+	aBuffer				: ARRAY[1..cOversamples] OF LREAL;  // InputBuffer
+					
+	fbSource			:  FB_CMA_Source :=(	stInitPars := cInitSource, 
+												nOwnID := eID_Source, 
+												aDestIDs := [eID_PowSpec, eID_MagSpec],
+												nResultBuffers := 5);	// Initialize source buffers
+		(* Result buffers *)										
+	aMagSpectrumResult	: ARRAY[1..cFFTResult] OF LREAL;	                    
+    fbSinkMag			: FB_CMA_Sink := (nOwnID := eID_SinkMag);  
+	
+	aPowSpectrumResult	: ARRAY[1..cFFTResult] OF LREAL;	                    
+    fbSinkPow			: FB_CMA_Sink := (nOwnID := eID_SinkPow);      
+	//fbSink				:  FB_CMA_Sink	:= (	nOwnID := eID_Sink);
+	
+	nCountResults		: ULINT;
+	bCalculate1			: BOOL;
+	bCalculate2			: BOOL;
+	(* RMS value calculation *)
+	nChannel			: UDINT;
+	fSum				: LREAL;
+	fRmsValue_Mag		: LREAL;	
+	fRmsValue_Pow		: LREAL;
+	fPSDValue_Mag		: LREAL;
+	fPSDValue_Pow		: LREAL;
+	(* max amplitude calculation *)
+	fMaxAmpl			: LREAL;
+	nIdxOfMaxAmpl		: UDINT;		 // index of max amplitude in spectrum result array 
+	(* frequency calculation *)
+	fSampleTaskCycleTime: LREAL := 1; 	// ms
+	fSampleRate			: LREAL; 		// Hz  ( sample rate = oversampling factor / cycle time )
+	fResolution			: LREAL; 		// Hz/Idx
+	fFrequency			: LREAL; 		// Hz	
+	ResultArray			: ARRAY[1..4] OF LREAL;
+	
+	fbErrHist			: FB_HRErrHist; // error monitoring
+
+END_VAR
+
+
+
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[//FOR nChnIndex := 1 TO cMaxChannels DO
+	
+
+(* input from EL3632 *)
+FOR nSample := 1 TO cOversamples DO
+	aBuffer[nSample] := INT_TO_LREAL(A_OVERSAMPLING_INPUT_1[nSample-1]);
+END_FOR
+				
+
+// Call source to collect data
+fbSource.Input1D( pDataIn 			:= ADR(aBuffer),
+				  nDataInSize 		:= SIZEOF(aBuffer), 
+				  eElementType 		:= eMA_TypeCode_LREAL,
+				  nWorkDim 			:= 0,
+				  pStartIndex		:= 0,
+				  nOptionPars		:= cCMA_Option_MarkInterruption ); 
+IF fbSource.bError THEN
+	fbErrHist.AddError(bErr:=TRUE, hrErrCode:=fbSource.hrErrorCode, sErrSource:='MAGNITUDESPECTRUM.fbSource'); // error monitoring
+	// ToDo: if error
+END_IF
+
+// Push results to sink
+fbSinkMag.Output1D(	pDataOut 		:= ADR(aMagSpectrumResult), 
+					nDataOutSize 	:= SIZEOF(aMagSpectrumResult), 
+					eElementType 	:= eMA_TypeCode_LREAL, 
+					nWorkDim 		:= 0,
+					nElements		:= 0,
+					pStartIndex 	:= 0,
+					nOptionPars		:= 0,
+					bNewResult		=> bCalculate1 );
+IF fbSinkMag.bError THEN
+	fbErrHist.AddError(bErr:=TRUE, hrErrCode:=fbSinkMag.hrErrorCode, sErrSource:='MAGNITUDESPECTRUM.fbSinkMag'); // error monitoring
+	// ToDo: if error
+END_IF
+
+(* Push results to sink *)
+fbSinkPow.Output1D(	pDataOut 		:= ADR(aPowSpectrumResult), 
+					nDataOutSize 	:= SIZEOF(aPowSpectrumResult), 
+					eElementType 	:= eMA_TypeCode_LREAL, 
+					nWorkDim 		:= 0,
+					nElements		:= 0,
+					pStartIndex 	:= 0,
+					nOptionPars		:= 0,
+					bNewResult		=> bCalculate2 );
+IF fbSinkPow.bError THEN
+	fbErrHist.AddError(bErr:=TRUE, hrErrCode:=fbSinkPow.hrErrorCode, sErrSource:='MAGNITUDESPECTRUM.fbSinkPow'); // error monitoring
+	// ToDo: if error
+END_IF
+
+IF cScaling = E_CM_ScalingType.eCM_PeakAmplitude THEN
+	IF bCalculate1 THEN
+		IF NOT LrealIsNaN(aMagSpectrumResult[1]) THEN
+			// Calculate RMS value of signal
+			fSum := 0;	
+			FOR nChannel := 1 TO cFFTResult DO
+				fSum := fSum + (aMagSpectrumResult[nChannel] * aMagSpectrumResult[nChannel]);
+			END_FOR
+			fRmsValue_Mag := SQRT(fSum);
+			
+			// Calculate max amplitude in spectrum
+			fMaxAmpl := 0;
+			FOR nChannel:=1 TO cFFTResult DO
+				IF aMagSpectrumResult[nChannel] > fMaxAmpl THEN
+					fMaxAmpl := aMagSpectrumResult[nChannel];
+					nIdxOfMaxAmpl := nChannel;
+				END_IF
+			END_FOR
+			// Calculate frequency for max amplitude [ frequency = index * (sample rate / FFT length) ]
+			fSampleRate := cOversamples * (1000.0 / fSampleTaskCycleTime);
+			fResolution := fSampleRate / cFFTLength;
+			fFrequency := (nIdxOfMaxAmpl-1) * fResolution; // -1 to consider DC = 0*fResolution
+		END_IF
+	END_IF
+	
+	IF bCalculate2 THEN
+		IF NOT LrealIsNaN(aPowSpectrumResult[1]) THEN
+			// Calculate RMS value of signal
+			fSum := 0;	
+			FOR nChannel := 1 TO cFFTResult DO
+				fSum := fSum + aPowSpectrumResult[nChannel];
+			END_FOR
+			fRmsValue_Pow := SQRT(fSum);
+			
+			// Calculate max amplitude in spectrum
+			fMaxAmpl := 0;
+			FOR nChannel:=1 TO cFFTResult DO
+				IF aPowSpectrumResult[nChannel] > fMaxAmpl THEN
+					fMaxAmpl := aPowSpectrumResult[nChannel];
+					nIdxOfMaxAmpl := nChannel;
+				END_IF
+			END_FOR
+			// Calculate frequency for max amplitude [ frequency = index * (sample rate / FFT length) ]
+			fSampleRate := cOversamples * (1000.0 / fSampleTaskCycleTime);
+			fResolution := fSampleRate / cFFTLength;
+			fFrequency := (nIdxOfMaxAmpl-1) * fResolution; // -1 to consider DC = 0*fResolution
+		END_IF
+	END_IF
+	// ToDo: if new result is ready
+	ResultArray[1] := fFrequency;
+	ResultArray[2] := GVarL.X_Machine_CS;
+	ResultArray[3] := GVarL.Y_Machine_CS;
+	ResultArray[4] := GVarL.Z_Machine_CS;
+	
+ELSIF cScaling = E_CM_ScalingType.eCM_PowerSpectralDensity THEN
+	IF bCalculate1 THEN
+		IF NOT LrealIsNaN(aMagSpectrumResult[1]) THEN
+			fMaxAmpl := 0;
+			FOR nChannel:=1 TO cFFTResult DO
+				IF aMagSpectrumResult[nChannel] > fMaxAmpl THEN
+					fMaxAmpl := aMagSpectrumResult[nChannel];
+					nIdxOfMaxAmpl := nChannel;
+				END_IF
+			END_FOR
+			fSampleRate := cOversamples * (1000.0 / fSampleTaskCycleTime);
+			fResolution := fSampleRate / cFFTLength;
+			fFrequency := (nIdxOfMaxAmpl-1) * fResolution; // -1 to consider DC = 0*fResolution
+			fPSDValue_Mag := (fMaxAmpl * fMaxAmpl)/ fSampleRate ;
+		END_IF
+	END_IF
+	
+	IF bCalculate2 THEN
+		IF NOT LrealIsNaN(aPowSpectrumResult[1]) THEN
+			fMaxAmpl := 0;
+			FOR nChannel:=1 TO cFFTResult DO
+				IF aPowSpectrumResult[nChannel] > fMaxAmpl THEN
+					fMaxAmpl := aPowSpectrumResult[nChannel];
+					nIdxOfMaxAmpl := nChannel;
+				END_IF
+			END_FOR
+			fSampleRate := cOversamples * (1000.0 / fSampleTaskCycleTime);
+			fResolution := fSampleRate / cFFTLength;
+			fFrequency := (nIdxOfMaxAmpl-1) * fResolution; // -1 to consider DC = 0*fResolution
+			fPSDValue_Pow := fMaxAmpl/ fSampleRate ;
+		END_IF
+	END_IF
+END_IF
+//END_FOR
+]]></ST>
+    </Implementation>
+    <LineIds Name="MAGNITUDESPECTRUM">
+      <LineId Id="279" Count="2" />
+      <LineId Id="4" Count="3" />
+      <LineId Id="13" Count="12" />
+      <LineId Id="27" Count="13" />
+      <LineId Id="510" Count="12" />
+      <LineId Id="509" Count="0" />
+      <LineId Id="524" Count="0" />
+      <LineId Id="523" Count="0" />
+      <LineId Id="41" Count="0" />
+      <LineId Id="43" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="45" Count="18" />
+      <LineId Id="542" Count="0" />
+      <LineId Id="547" Count="0" />
+      <LineId Id="550" Count="0" />
+      <LineId Id="552" Count="20" />
+      <LineId Id="549" Count="0" />
+      <LineId Id="64" Count="0" />
+      <LineId Id="326" Count="3" />
+      <LineId Id="541" Count="0" />
+      <LineId Id="580" Count="0" />
+      <LineId Id="661" Count="1" />
+      <LineId Id="668" Count="0" />
+      <LineId Id="664" Count="0" />
+      <LineId Id="669" Count="1" />
+      <LineId Id="666" Count="0" />
+      <LineId Id="671" Count="0" />
+      <LineId Id="667" Count="0" />
+      <LineId Id="673" Count="1" />
+      <LineId Id="672" Count="0" />
+      <LineId Id="675" Count="0" />
+      <LineId Id="665" Count="0" />
+      <LineId Id="663" Count="0" />
+      <LineId Id="679" Count="0" />
+      <LineId Id="682" Count="13" />
+      <LineId Id="681" Count="0" />
+      <LineId Id="633" Count="0" />
+      <LineId Id="282" Count="0" />
+      <LineId Id="424" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

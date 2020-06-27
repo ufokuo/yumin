@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.16">
+  <DUT Name="sCCDataStreamHeader" Id="{a5ce511a-e1ba-4b68-92b2-6eb00544759c}">
+    <Declaration><![CDATA[TYPE sCCDataStreamHeader :
+STRUCT
+	byBlockType: BYTE;
+	byBlockLength: BYTE;
+	byNumActTracks: BYTE;
+	byAcceptFlag: BYTE;
+	uiComCycle: UINT;
+	byFillByte1: BYTE;
+	uiFillByte2: BYTE;
+	aValue: ARRAY[0..29] OF DINT;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

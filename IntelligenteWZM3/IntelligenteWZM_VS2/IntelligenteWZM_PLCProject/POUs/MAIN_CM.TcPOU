@@ -1,0 +1,65 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.3">
+  <POU Name="MAIN_CM" Id="{759a1394-da0e-4072-9e18-bc13374d1129}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN_CM
+
+VAR CONSTANT
+	cInitMagSpec 	: ST_CM_MagnitudeSpectrum_InitPars := (	nFFT_Length := cFFTLength, 
+															nWindowLength := cWindowLength,
+															bTransformToDecibel:= FALSE, 
+															eWindowType := E_CM_WindowType.eCM_HannWindow,	
+															eScalingType := E_CM_ScalingType.eCM_PeakAmplitude);	
+															//fDecibelThreshold := cCM_MinArgLog10,
+															//bTransformToDecibel := cDecibelScale,
+
+	cInitPowSpec	: ST_CM_PowerSpectrum_InitPars :=  (	nFFT_Length := cFFTLength, 
+															nWindowLength := cWindowLength,
+															bTransformToDecibel:= FALSE,
+															eWindowType := E_CM_WindowType.eCM_HannWindow,	
+															eScalingType := eCM_PowerSpectralDensity);
+															//fDecibelThreshold := cCM_MinArgLog10,
+															//bTransformToDecibel := cDecibelScale,				
+											
+	// change eScalingType to E_CM_ScalingType.eCM_PeakAmplitude if max of spectrum has to be the amplitude value of a sine-wave
+														
+END_VAR
+
+VAR	
+														
+	fbMagSpec			: FB_CMA_MagnitudeSpectrum :=(	stInitPars := cInitMagSpec, 
+												nOwnID := eID_MagSpec, 
+												aDestIDs := [eID_SinkMag],
+												nResultBuffers   := 4);	
+
+	fbPowSpec			: FB_CMA_PowerSpectrum :=(	stInitPars := cInitPowSpec, 
+												nOwnID := eID_PowSpec, 
+												aDestIDs := [eID_SinkPow],
+												nResultBuffers   := 4);		
+	fbErrHist			: FB_HRErrHist; // error monitoring
+END_VAR
+
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Call Magnitude Spectrum 
+fbMagSpec.Call();
+IF fbMagSpec.bError THEN
+	fbErrHist.AddError(bErr:=TRUE, hrErrCode:=fbMagSpec.hrErrorCode, sErrSource:='MAIN_CM.fbMagSpec'); // error monitoring
+	// ToDo: if error
+END_IF
+
+
+// Call Power Spectrum 
+fbPowSpec.Call();
+IF fbPowSpec.bError THEN
+	fbErrHist.AddError(bErr:=TRUE, hrErrCode:=fbPowSpec.hrErrorCode, sErrSource:='MAIN_CM.fbPowSpec'); // error monitoring
+	// ToDo: if error
+END_IF
+]]></ST>
+    </Implementation>
+    <LineIds Name="MAIN_CM">
+      <LineId Id="79" Count="12" />
+      <LineId Id="77" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

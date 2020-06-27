@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.16">
+  <DUT Name="DW_TO_REAL_1" Id="{0ab6728d-c321-4724-8fa0-a617cd023069}">
+    <Declaration><![CDATA[TYPE DW_TO_REAL_1 :
+UNION
+	IntAsWord : ARRAY[0..1] OF WORD;
+	IntAsReal: REAL;
+END_UNION
+END_TYPE
+
+]]></Declaration>
+  </DUT>
+</TcPlcObject>
