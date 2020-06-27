@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.16">
+  <DUT Name="Signalbezeichnungen" Id="{d7b3af49-48c2-44b9-abd0-60172f338b04}">
+    <Declaration><![CDATA[TYPE Signalbezeichnungen :
+STRUCT
+	Name: STRING;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

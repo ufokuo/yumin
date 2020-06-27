@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<TcSmItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmItem" TcSmVersion="1.0" TcVersion="3.1.4022.27" ClassName="CFlbDeviceTermDef" SubType="9094">
+	<DataTypes>
+		<DataType>
+			<Name GUID="{18071995-0000-0000-0000-002000000040}" IecBaseType="true" AutoDeleteType="true" HideSubItems="true">ARRAY [0..7] OF BYTE</Name>
+			<BitSize>64</BitSize>
+			<BaseType GUID="{18071995-0000-0000-0000-000000000001}">BYTE</BaseType>
+			<ArrayInfo>
+				<LBound>0</LBound>
+				<Elements>8</Elements>
+			</ArrayInfo>
+		</DataType>
+		<DataType>
+			<Name GUID="{18071995-0000-0000-0000-002000000006}" IecBaseType="true" BitType="true" AutoDeleteType="true">ARRAY [0..5] OF BIT</Name>
+			<BitSize>6</BitSize>
+			<BaseType GUID="{18071995-0000-0000-0000-000000000010}">BIT</BaseType>
+			<ArrayInfo>
+				<LBound>0</LBound>
+				<Elements>6</Elements>
+			</ArrayInfo>
+		</DataType>
+	</DataTypes>
+	<ImageDatas>
+		<ImageData Id="1000">424dd6020000000000003600000028000000100000000e0000000100180000000000a0020000c40e0000c40e00000000000000000000ff00ff000000000000ff00ffff00ffff00ff808080808080808080808080808080ff00ffff00ffff00ffff00ffff00ff000000ff00ffff00ff000000ff00ffff00ffc0c0c0000000c0c0c0000000808080ff00ffff00ffff00ffff00ffff00ff000000ff00ffff00ffff00ffff00ffff00ffc0c0c000ffffc0c0c000ffff808080ff00ffff00ffff00ffff00ffff00ff000000ff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ff000000ff00ffff00ff000000ff00ffff00ffc0c0c0000000c0c0c0000000808080ff00ffff00ffff00ffff00ffff00ffff00ff000000000000ff00ffff00ffff00ffc0c0c0ff0000c0c0c0ff0000808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0000000c0c0c0000000808080ff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c00000ffc0c0c00000ff808080ff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0000000c0c0c0000000808080ff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0008000c0c0c0008000808080ff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ff</ImageData>
+	</ImageDatas>
+	<Box Id="5" BoxType="9094">
+		<Name>__FILENAME__</Name>
+		<ImageId>1000</ImageId>
+		<EtherCAT SlaveType="5" AdsServerAddress="a9febaf903010000" PdiType="#x0408" ExecIo="true" MboxDataLinkLayer="true" StateMBoxPolling="true" CycleMBoxPollingTime="0" CoeType="51" FoeType="1" VendorId="#x00000002" ProductCode="#x1a5f3052" RevisionNo="#x00150000" InfoDataAddr="true" InfoDataNetId="true" OwnAddrExtern="true" PortPhys="51" MaxSlotCount="256" MaxSlotGroupCount="1" SlotPdoIncrement="1" SlotIndexIncrement="16" Type="EL6751 (CANopen Master)" Desc="EL6751">
+			<SyncMan>001000042600010001000000000000000004001026010000</SyncMan>
+			<SyncMan>001400042200010002000000000000000004001422010000</SyncMan>
+			<SyncMan>001808002600010003000000000000000000001826010000</SyncMan>
+			<SyncMan>002457002200010004000000000000000000002422010000</SyncMan>
+			<Fmmu>0000000000000000001800020100000001000000000000000000000000000000</Fmmu>
+			<Fmmu>0000000000000000002400010100000002000000000000000000000000000000</Fmmu>
+			<Fmmu>00000000000000000d0800010100000003000000000000000000000000000000</Fmmu>
+			<BootStrapData>0010140200181402</BootStrapData>
+			<DcMode>53796e6368726f6e000000000000000053796e6368726f6e000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000</DcMode>
+			<DcMode>444353594e4300000000000000000000444353594e430000000000000000000000000000000000000000000000000000000000000000000090d00300000000070100000000000000000000000000000000000000000000000000000000000000</DcMode>
+			<Pdo Name="CAN-Sensors (CANopen Node)_IN" Index="#x1a00" Flags="#x0011" SyncMan="3">
+				<Entry Name="TxPDO_1" Index="#x6000" Sub="#x01" Flags="#x00000100">
+					<Type GUID="{18071995-0000-0000-0000-002000000040}">ARRAY [0..7] OF BYTE</Type>
+				</Entry>
+				<Entry Name="TxPDO_2" Index="#x6000" Sub="#x02" Flags="#x00000100">
+					<Type GUID="{18071995-0000-0000-0000-002000000040}">ARRAY [0..7] OF BYTE</Type>
+				</Entry>
+				<Entry Name="TxPDO_3" Index="#x6000" Sub="#x03" Flags="#x00000100">
+					<Type GUID="{18071995-0000-0000-0000-002000000040}">ARRAY [0..7] OF BYTE</Type>
+				</Entry>
+				<Entry Name="TxPDO_4" Index="#x6000" Sub="#x04" Flags="#x00000100">
+					<Type GUID="{18071995-0000-0000-0000-002000000040}">ARRAY [0..7] OF BYTE</Type>
+				</Entry>
+				<Entry Name="TxPDO_5" Index="#x6000" Sub="#x05" Flags="#x00000100">
+					<Type GUID="{18071995-0000-0000-0000-002000000040}">ARRAY [0..7] OF BYTE</Type>
+				</Entry>
+				<Entry Name="TxPDO_6" Index="#x6000" Sub="#x06" Flags="#x00000100">
+					<Type GUID="{18071995-0000-0000-0000-002000000040}">ARRAY [0..7] OF BYTE</Type>
+				</Entry>
+				<Entry Name="TxPDO_7" Index="#x6000" Sub="#x07" Flags="#x00000100">
+					<Type GUID="{18071995-0000-0000-0000-002000000040}">ARRAY [0..7] OF BYTE</Type>
+				</Entry>
+				<Entry Name="TxPDO_8" Index="#x6000" Sub="#x08" Flags="#x00000100">
+					<Type GUID="{18071995-0000-0000-0000-002000000040}">ARRAY [0..7] OF BYTE</Type>
+				</Entry>
+				<Entry Name="TxPDO_9" Index="#x6000" Sub="#x09" Flags="#x00000100">
+					<Type GUID="{18071995-0000-0000-0000-002000000040}">ARRAY [0..7] OF BYTE</Type>
+				</Entry>
+				<Entry Name="TxPDO_10" Index="#x6000" Sub="#x0a" Flags="#x00000100">
+					<Type GUID="{18071995-0000-0000-0000-002000000040}">ARRAY [0..7] OF BYTE</Type>
+				</Entry>
+			</Pdo>
+			<Pdo Name="CAN-Sensors (CANopen Node)_OUT" Index="#x1600" InOut="1" Flags="#x0011" SyncMan="2">
+				<Entry Name="RxPDO_1" Index="#x7000" Sub="#x01" Flags="#x00000100">
+					<Type GUID="{18071995-0000-0000-0000-002000000040}">ARRAY [0..7] OF BYTE</Type>
+				</Entry>
+			</Pdo>
+			<Pdo Name="Device 2 (EL6751)" Index="#x1a80" Flags="#x0011" SyncMan="3">
+				<Entry Name="CAN-Sensors (CANopen Node)_NodeState" Index="#xa000" Sub="#x01" Flags="#x00000100">
+					<DefaultDataMask>1f1f</DefaultDataMask>
+					<Type>USINT</Type>
+				</Entry>
+				<Entry Name="Device 2 (EL6751)_Error" Index="#xf100" Sub="#x01" Flags="#x00000100">
+					<Type>USINT</Type>
+				</Entry>
+				<Entry Name="Device 2 (EL6751)_CanState" Index="#xf100" Sub="#x03" Flags="#x00000100">
+					<Type>UINT</Type>
+				</Entry>
+				<Entry Name="Device 2 (EL6751)_RxErrorCounter" Index="#xf100" Sub="#x05" Flags="#x00000100">
+					<Type>USINT</Type>
+				</Entry>
+				<Entry Name="Device 2 (EL6751)_TxErrorCounter" Index="#xf100" Sub="#x04" Flags="#x00000100">
+					<Type>USINT</Type>
+				</Entry>
+				<Entry Name="Device 2 (EL6751)_DiagFlag" Index="#xf100" Sub="#x02" Flags="#x00000100">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="CAN-Sensors (CANopen Node)_DiagFlag" Index="#xa000" Sub="#x02" Flags="#x00000100">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry>
+					<Type GUID="{18071995-0000-0000-0000-002000000006}">ARRAY [0..5] OF BIT</Type>
+				</Entry>
+			</Pdo>
+		</EtherCAT>
+	</Box>
+</TcSmItem>

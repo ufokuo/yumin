@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.0.26">
+  <POU Name="ANALOG_OUTPUT_EL4134" Id="{0686aca5-be71-4787-b971-0ee509e56566}">
+    <Declaration><![CDATA[PROGRAM ANALOG_OUTPUT_EL4134
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+]]></ST>
+    </Implementation>
+    <ObjectProperties />
+  </POU>
+</TcPlcObject>

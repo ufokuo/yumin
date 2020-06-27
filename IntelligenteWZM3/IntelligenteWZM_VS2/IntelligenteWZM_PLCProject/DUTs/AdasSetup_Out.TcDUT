@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.16">
+  <DUT Name="AdasSetup_Out" Id="{8faae8cf-93b3-4d1a-aef3-475cd0263aa8}">
+    <Declaration><![CDATA[TYPE AdasSetup_Out :
+
+UNION
+	asSetup: AdasStreamSetup;
+	asBin: ARRAY[0..7] OF BYTE;
+END_UNION
+
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>
