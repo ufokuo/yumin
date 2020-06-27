@@ -7,4 +7,9 @@ Creating a new branch is quick & simple.
 =======
 reating a new branch is quick AND simpl
 >>>>>>> feature1
+<<<<<<< Updated upstream
 ababababba
+=======
+ababababbabaasefgnakrjgnae
+aefgnaef
+>>>>>>> Stashed changes
